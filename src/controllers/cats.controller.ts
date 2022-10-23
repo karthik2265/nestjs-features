@@ -11,6 +11,8 @@ import {
   Req,
   Res,
   UseFilters,
+  UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { request } from "http";
@@ -18,6 +20,8 @@ import { request } from "http";
 import { CreateCatDto } from "src/Dto/create-cat-dto";
 import { AllExceptionsFilter } from "src/exception-filters/all-exceptions-filter";
 import { HttpExceptionFilter } from "src/exception-filters/http-exception-filter";
+import { RolesGuard } from "src/guards/auth-guard";
+import { LoggingInterceptor } from "src/interceptors/logger";
 // services
 import { CatsService } from "src/services/cats/cats.service";
 import { Cat } from "src/types/cat";
@@ -34,6 +38,7 @@ export class CatsController {
 
   // @UseFilters(HttpExceptionFilter)
   @Get(":id")
+  @UseInterceptors(LoggingInterceptor)
   findOne(
     @Param(
       "id",
@@ -46,7 +51,11 @@ export class CatsController {
   }
 
   @Post()
-  createOne(@Body(ValidationPipe) catDto: CreateCatDto, @Req() request): CreateCatDto {
+  @UseGuards(RolesGuard)
+  createOne(
+    @Body(ValidationPipe) catDto: CreateCatDto,
+    @Req() request
+  ): CreateCatDto {
     this.catsService.create(catDto as Cat);
     return catDto;
   }
