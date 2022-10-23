@@ -1,7 +1,21 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseFilters,
+} from "@nestjs/common";
 import { request } from "http";
 // Dto
 import { CreateCatDto } from "src/Dto/create-cat-dto";
+import { AllExceptionsFilter } from "src/exception-filters/all-exceptions-filter";
+import { HttpExceptionFilter } from "src/exception-filters/http-exception-filter";
 // services
 import { CatsService } from "src/services/cats/cats.service";
 import { Cat } from "src/types/cat";
@@ -16,8 +30,10 @@ export class CatsController {
     return this.catsService.findAll();
   }
 
+  // @UseFilters(HttpExceptionFilter)
   @Get(":id")
   findOne(@Param("id") id): string {
+    throw new Error("what will happen now???");
     return `found a cat with id = ${id}`;
   }
 
