@@ -6,10 +6,12 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Req,
   Res,
   UseFilters,
+  ValidationPipe,
 } from "@nestjs/common";
 import { request } from "http";
 // Dto
@@ -32,13 +34,19 @@ export class CatsController {
 
   // @UseFilters(HttpExceptionFilter)
   @Get(":id")
-  findOne(@Param("id") id): string {
-    throw new Error("what will happen now???");
+  findOne(
+    @Param(
+      "id",
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE })
+    )
+    id
+  ): string {
+    // throw new Error("what will happen now???");
     return `found a cat with id = ${id}`;
   }
 
   @Post()
-  createOne(@Body() catDto: CreateCatDto, @Req() request): CreateCatDto {
+  createOne(@Body(ValidationPipe) catDto: CreateCatDto, @Req() request): CreateCatDto {
     this.catsService.create(catDto as Cat);
     return catDto;
   }
