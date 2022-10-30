@@ -31,6 +31,7 @@ export class CatsController {
   constructor(private catsService: CatsService) {}
 
   @Get()
+  @UseGuards(RolesGuard)
   findAll(@Res({ passthrough: true }) response, @Req() request): Cat[] {
     response.status(201);
     return this.catsService.findAll();
@@ -38,24 +39,16 @@ export class CatsController {
 
   // @UseFilters(HttpExceptionFilter)
   @Get(":id")
-  @UseInterceptors(LoggingInterceptor)
-  findOne(
-    @Param(
-      "id",
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE })
-    )
-    id
-  ): string {
+  // @UseInterceptors(LoggingInterceptor)
+  @UseGuards(RolesGuard)
+  findOne(@Param("id") id): string {
     // throw new Error("what will happen now???");
     return `found a cat with id = ${id}`;
   }
 
   @Post()
   @UseGuards(RolesGuard)
-  createOne(
-    @Body(ValidationPipe) catDto: CreateCatDto,
-    @Req() request
-  ): CreateCatDto {
+  createOne(@Body(ValidationPipe) catDto: CreateCatDto, @Req() request): CreateCatDto {
     this.catsService.create(catDto as Cat);
     return catDto;
   }
